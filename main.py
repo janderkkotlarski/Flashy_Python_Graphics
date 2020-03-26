@@ -6,13 +6,13 @@ import pygame
 
 class Block:
 
-    def __init__(self, window_length, power):
-        self.power = power
+    def __init__(self, window_length, tally):
+        self.tally = tally
         self.count = 0
-        self.min_perc = 3
+        self.max_perc = 50
         self.med_perc = 10
-        self.max_perc = 33.333
-        self.base = pow(self.max_perc / self.min_perc, 1 / power)
+        self.min_perc = self.med_perc * self.med_perc / self.max_perc
+        self.base = pow(self.max_perc / self.min_perc, 1 / tally)
         self.cur_perc = self.max_perc
         if random.random() < 0.5:
             self.cur_perc = self.min_perc
@@ -22,29 +22,47 @@ class Block:
         self.height = window_length * self.med_perc * self.med_perc / (100 * self.cur_perc)
         self.pos_x = window_length * random.random()
         self.pos_y = window_length * random.random()
-        self.surface = pygame.Surface((int(self.width), int(self.height)))
-        self.rect = self.surface.get_rect()
-        self.rectposition()
         self.color = 255, 191, 127
-        self.surface.fill(self.color)
+        self.past_width = self.width
+        self.past_height = self.height
+        self.past_color = 127, 95, 63
 
-    def rectposition(self):
-        self.rect.centerx = int(self.pos_x)
-        self.rect.centery = int(self.pos_y)
+    def multiply(self, passed):
+        reset = False
 
-    def multiply(self):
-        if self.count < self.power:
-            self.cur_perc *= self.base
-            self.power += 1
+        if self.count < self.tally:
+            self.cur_perc *= pow(self.base, passed * self.tally / 1000)
+            self.count += passed * self.tally / 1000
+        else:
+            reset = True
+
+        return reset
+
 
     def resize(self):
+        self.past_width = self.width
+        self.past_height = self.height
         self.width = window_length * self.cur_perc / 100
         self.height = window_length * self.med_perc * self.med_perc / (100 * self.cur_perc)
 
-        self.rect.width = int(self.width)
-
     def blit(self, screen):
-        screen.blit(self.surface, self.rect)
+        past_surface = pygame.Surface((int(self.past_width), int(self.past_height)))
+        past_surface.fill(self.past_color)
+
+        past_rect = past_surface.get_rect()
+        past_rect.centerx = int(self.pos_x)
+        past_rect.centery = int(self.pos_y)
+
+        screen.blit(past_surface, past_rect)
+
+        surface = pygame.Surface((int(self.width), int(self.height)))
+        surface.fill(self.color)
+
+        rect = surface.get_rect()
+        rect.centerx = int(self.pos_x)
+        rect.centery = int(self.pos_y)
+
+        screen.blit(surface, rect)
 
 
 pygame.init()
@@ -64,7 +82,7 @@ while 1:
 
     loops = True
 
-    block = Block(window_length, fps)
+    block = Block(window_length, fps / 16)
 
     clock = pygame.time.Clock()
 
@@ -86,7 +104,9 @@ while 1:
 
         # screen.blit(surface, rect)
 
-        block.multiply()
+        if block.multiply(passed):
+            loops = False
+
         block.resize()
 
         block.blit(screen)
