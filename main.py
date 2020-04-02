@@ -6,11 +6,11 @@ import pygame
 
 class Block:
 
-    def __init__(self, window_length, tally):
+    def __init__(self, window_length, tally, color):
         self.tally = tally
         self.count = 0
-        self.max_perc = 50
-        self.med_perc = 10
+        self.max_perc = 25
+        self.med_perc = 5
         self.min_perc = self.med_perc * self.med_perc / self.max_perc
         self.base = pow(self.max_perc / self.min_perc, 1 / tally)
         self.cur_perc = self.max_perc
@@ -22,7 +22,7 @@ class Block:
         self.height = window_length * self.med_perc * self.med_perc / (100 * self.cur_perc)
         self.pos_x = window_length * random.random()
         self.pos_y = window_length * random.random()
-        self.color = 255, 191, 127
+        self.color = color
         self.past_width = self.width
         self.past_height = self.height
         self.past_color = 127, 95, 63
@@ -76,28 +76,40 @@ screen = pygame.display.set_mode(window_size)
 
 orange = 255, 127, 0
 
-indigo = 127, 0, 255
+indigo = 63, 127, 255
 
-fps = 100
+green = 127, 255, 127
 
-frames = 0.01
+red = 255, 127, 127
 
-font = pygame.font.SysFont(None, 10)
+yellow = 255, 255, 127
 
+blue = 127, 127, 255
+
+fps = 500
+
+bpm = 137
+
+beat = 60 / bpm
+
+frames = beat
+
+font = pygame.font.SysFont(None, 50)
 
 while 1:
 
     loops = True
 
-    block = Block(window_length, frames)
+    block = Block(window_length, frames, blue)
+
+    block_2 = Block(window_length, frames / 2, red)
+
+    block_3 = Block(window_length, frames / 4, yellow)
 
     clock = pygame.time.Clock()
 
     while loops:
         passed = clock.tick(fps)
-
-        text = font.render(passed, True, indigo)
-        screen.blit(text, [0.2 * window_length, 0.2 * window_length])
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -115,13 +127,26 @@ while 1:
         # screen.blit(surface, rect)
 
         if block.multiply(passed):
-
             block.base = 1 / block.base
 
-            # loops = False
+        if block_2.multiply(passed):
+            block_2.base = 1 / block_2.base
+
+        if block_3.multiply(passed):
+            block_3.base = 1 / block_3.base
 
         block.resize()
+        block_2.resize()
+        block_3.resize()
 
         block.blit(screen)
+        block_2.blit(screen)
+        block_3.blit(screen)
+
+        text = font.render(str(passed), True, indigo)
+        screen.blit(text, [int(0.2 * window_length), int(0.2 * window_length)])
+
+        text = font.render(str(block.count / block.tally), True, green)
+        screen.blit(text, [int(0.8 * window_length), int(0.8 * window_length)])
 
         pygame.display.flip()
