@@ -31,13 +31,13 @@ class Block:
         reset = False
 
         if self.count < self.tally:
-            self.cur_perc *= pow(self.base, passed * self.tally / 1000)
-            self.count += passed * self.tally / 1000
+            self.cur_perc *= pow(self.base, passed / 1000)
+            self.count += passed / 1000
         else:
             reset = True
+            self.count = 0
 
         return reset
-
 
     def resize(self):
         self.past_width = self.width
@@ -76,18 +76,28 @@ screen = pygame.display.set_mode(window_size)
 
 orange = 255, 127, 0
 
+indigo = 127, 0, 255
+
 fps = 100
+
+frames = 0.01
+
+font = pygame.font.SysFont(None, 10)
+
 
 while 1:
 
     loops = True
 
-    block = Block(window_length, fps / 16)
+    block = Block(window_length, frames)
 
     clock = pygame.time.Clock()
 
     while loops:
         passed = clock.tick(fps)
+
+        text = font.render(passed, True, indigo)
+        screen.blit(text, [0.2 * window_length, 0.2 * window_length])
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -105,7 +115,10 @@ while 1:
         # screen.blit(surface, rect)
 
         if block.multiply(passed):
-            loops = False
+
+            block.base = 1 / block.base
+
+            # loops = False
 
         block.resize()
 
