@@ -67,10 +67,10 @@ class Block:
         self.width = self.window_length * self.cur_perc / 100
         self.height = self.window_length * self.med_perc * self.med_perc / (100 * self.cur_perc)
 
-        if self.width > self.window_length * self.max_perc  / 100:
+        if self.width > self.window_length * self.max_perc / 100:
             self.width = self.window_length * self.max_perc / 100
 
-        if self.height > self.window_length * self.max_perc  / 100:
+        if self.height > self.window_length * self.max_perc / 100:
             self.height = self.window_length * self.max_perc / 100
 
     def blit(self, screen):
