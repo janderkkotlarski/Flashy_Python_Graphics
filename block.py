@@ -67,6 +67,12 @@ class Block:
         self.width = self.window_length * self.cur_perc / 100
         self.height = self.window_length * self.med_perc * self.med_perc / (100 * self.cur_perc)
 
+        if self.width > self.window_length * self.max_perc  / 100:
+            self.width = self.window_length * self.max_perc / 100
+
+        if self.height > self.window_length * self.max_perc  / 100:
+            self.height = self.window_length * self.max_perc / 100
+
     def blit(self, screen):
         past_surface = pygame.Surface((int(self.past_width), int(self.past_height)))
         past_surface.fill(self.past_color)
